@@ -8,7 +8,7 @@ const PORT = 3000;
 app.use(cors());
 app.use(express.json());
 
-app.get("/empresa/:cnpj", async (requestAnimationFrame, res) => {
+app.get("/empresa/:cnpj", async (req, res) => {
     try{
         const { cnpj } = req.params;
         const dados = await buscaEmpresa(cnpj);
