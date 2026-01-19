@@ -10,7 +10,7 @@ app.use(express.json());
 
 app.get("/empresa/:cnpj", async (requestAnimationFrame, res) => {
     try{
-        const { cnpj } = requestAnimationFrame.params;
+        const { cnpj } = req.params;
         const dados = await buscaEmpresa(cnpj);
         res.json(dados);
     }catch(error){
