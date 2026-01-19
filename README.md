@@ -1,0 +1,1 @@
+# Busca de CNPJ para uso interno
