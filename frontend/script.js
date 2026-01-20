@@ -11,6 +11,23 @@ function formataMoeda(valor){
     });
 }
 
+function formatarTelefone(telefone){
+    if(!telefone == null) return "";
+    if(telefone.lenght === 10){
+        return telefone.replace(/(\d{2})(\d{4})(\d{4})/, "($1) $2-$3");
+    }
+    if(telefone.lenght == 11){
+        return telefone.replace(/(\d{2})(\d{5})(\d{4})/, "($1) $2-$3")
+    }
+    return telefone; 
+}
+
+function formatarCnpj(cnpj){
+    if(!cnpj) return "";
+    return cnpj.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/,
+        "$1.$2.$3/$4-$5") ;
+}
+
 async function buscaEmpresa(){
     const cnpj = document.getElementById("cnpj").value;
     const container = document.getElementById("resultado");
