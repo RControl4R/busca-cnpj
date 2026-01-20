@@ -1,4 +1,17 @@
-async function buscaEmpresa() {
+function formataData(dataISO){
+    if(!dataISO) return "";
+    return new Date(dataISO).toLocaleDateString("pt-BR");
+}
+
+function formataMoeda(valor){
+    if(valor == null) return "";
+    return Number(valor).toLocaleString("pt-BR", {
+        style: "currency",
+        currency: "BRL"
+    });
+}
+
+async function buscaEmpresa(){
     const cnpj = document.getElementById("cnpj").value;
     const container = document.getElementById("resultado");
 
