@@ -14,7 +14,7 @@ app.get("/empresa/:cnpj", async (req, res) => {
         const dados = await buscaEmpresa(cnpj);
         
         const empresa = {
-            cnpj: dados.cnpj,
+            cnpj_empresa: dados.cnpj,
             razaoSocial: dados.razao_social,
             dataAbertura: dados.data_inicio_atividade,
             naturezaJuridica: dados.natureza_juridica,
@@ -30,7 +30,7 @@ app.get("/empresa/:cnpj", async (req, res) => {
         }
 
         res.json(empresa);
-        console.log(dados);
+        
     }catch(error){
         res.status(400).json({
             erro: "Erro ao buscar CNPJ",
