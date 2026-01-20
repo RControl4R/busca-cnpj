@@ -74,6 +74,9 @@ async function buscaEmpresa(){
     const cnpjInput = document.getElementById("cnpj");
     const container = document.getElementById("resultado");
 
+    const botao = document.getElementById("btnBuscar");
+    const loader = document.getElementById("loader");
+
     const cnpjLimpo = limparCnpj(cnpjInput.value);
 
     if(!validarCnpj(cnpjLimpo)){
@@ -83,6 +86,8 @@ async function buscaEmpresa(){
     }
 
     container.style.display = "none";
+    botao.disabled = true;
+    loader.style.displaay = "block";
 
     try{
 
@@ -115,5 +120,9 @@ async function buscaEmpresa(){
         console.log("Erro no FrontEnd:\n", error);
         container.textContent = "Erro ao buscar empresa!";
         container.style.display = "block";
+        
+    }finally{
+        loader.style.display = "none";
+        botao.disabled = false;
     }
 }

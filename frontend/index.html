@@ -10,7 +10,8 @@
     <h1>Consulta de Empresa por CNPJ</h1>
 
     <input type="text" id="cnpj" placeholder="Digite o CNPJ">
-    <button onclick="buscaEmpresa()">Buscar</button>
+    <button id="btnBuscar" onclick="buscaEmpresa()">Buscar</button>
+    <p id="loader" style="display:none;">🔄 Buscando informações...</p>
 
     <div id="resultado" class="card" style="display:none;">
         <p><strong>CNPJ:</strong> <span id="cnpjEmpresa"></span></p>
