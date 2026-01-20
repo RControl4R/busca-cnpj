@@ -19,7 +19,7 @@ async function buscaEmpresa() {
         console.log("Dados recebidos:", data); //log de depuração
 
 
-        document.getElementById("cnpjEmpresa").textContent = data.cnpj_empresa;
+        document.getElementById("cnpjEmpresa").textContent = data.cnpjEmpresa;
         document.getElementById("razaoSocial").textContent = data.razaoSocial;
         document.getElementById("dataAbertura").textContent = data.dataAbertura;
         document.getElementById("naturezaJuridica").textContent = data.naturezaJuridica;
@@ -36,7 +36,8 @@ async function buscaEmpresa() {
         container.style.display = "block";
 
     }catch(error) {
-        console.log("Erro no FrontEnd:\n");
-        resultado.textContent = "Erro ao buscar empresa!"
+        console.log("Erro no FrontEnd:\n", error);
+        container.textContent = "Erro ao buscar empresa!";
+        container.style.display = "block";
     }
 }

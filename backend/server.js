@@ -14,7 +14,7 @@ app.get("/empresa/:cnpj", async (req, res) => {
         const dados = await buscaEmpresa(cnpj);
         
         const empresa = {
-            cnpj_empresa: dados.cnpj,
+            cnpjEmpresa: dados.cnpj,
             razaoSocial: dados.razao_social,
             dataAbertura: dados.data_inicio_atividade,
             naturezaJuridica: dados.natureza_juridica,
