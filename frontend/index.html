@@ -12,7 +12,21 @@
     <input type="text" id="cnpj" placeholder="Digite o CNPJ">
     <button onclick="buscaEmpresa()">Buscar</button>
 
-    <pre id="resultado"></pre>
+    <div id="resultado" class="card" style="display:none;">
+        <p><strong>CNPJ:</strong> <span id="cnpj"></span></p>
+        <p><strong>Razão Social:</strong> <span id="razaoSocial"></span></p>
+        <p><strong>Data de abertura:</strong> <span id="dataAbertura"></span></p>
+        <p><strong>Natureza jurídica:</strong> <span id="naturezaJuridica"></span></p>
+        <p><strong>Capital social:</strong> <span id="capitalSocial"></span></p>
+        <p><strong>Telefone:</strong> <span id="telefone"></span></p>
+        <p><strong>Logradouro:</strong> <span id="logradouro"></span></p>
+        <p><strong>Bairro:</strong> <span id="bairro"></span></p>
+        <p><strong>Númeroro:</strong> <span id="numero"></span></p>
+        <p><strong>Cep:</strong> <span id="cep"></span></p>
+        <p><strong>Município:</strong> <span id="municipio"></span></p>
+        <p><strong>CNAE Fiscal:</strong> <span id="cnae_principal"></span></p>
+        <p><strong>CNAE Secundário:</strong> <span id="cnae_secundario"></span></p>
+    </div>    
 
     <script src="script.js"></script>
 </body>
