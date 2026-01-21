@@ -91,9 +91,7 @@ async function buscaEmpresa(){
 
     try{
 
-        const response = await fetch(
-            `http://localhost:3000/empresa/${cnpjLimpo}`
-        );
+        const response = await fetch(`/empresa/${cnpjLimpo}`); // teste em produção
 
         console.log("Status HTTP:", response.status); //log de depuração
 
