@@ -124,3 +124,8 @@ async function buscaEmpresa(){
         botao.disabled = false;
     }
 }
+
+document.getElementById("logoutBtn").addEventListener("click", async () => {
+    await fetch("/logout");
+    window.location.href = "/login.html";
+});

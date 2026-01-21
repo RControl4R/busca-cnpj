@@ -1,13 +1,82 @@
+import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import { buscaEmpresa } from "./backend/services/buscaEmpresa.js";
 
+import session from "express-session";
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 const isDev = process.env.NODE_ENV !== "production";
+const usuarios = [
+    { user: "admin", senha: "12345" }
+    //{ user: "iury.prates", senha: "Rcontrol@123" }  
+];
 
 app.use(cors());
-app.use(express.static("public"));
+app.use(session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    cookie:{
+        httpOnly: true
+    }
+}));
+
+/* ======================
+   ROTAS PÚBLICAS
+====================== */
+
+app.post("/login", express.json(), (req, res) => {
+    const { user, senha } = req.body;
+
+    const valido = usuarios.find(
+        u => u.user === user && u.senha === senha
+    );
+
+    if(!valido){
+        return res.status(401).json({erro: "Usuário ou senha inválido."});
+    };
+
+    req.session.usuario = user;
+    res.json({ sucesso: true});
+});
+
+app.get("/logout", (req, res) => {
+    req.session.destroy(() => {
+        res.redirect("/login.html");
+    });
+});
+
+// MIDDLEWARE
+function auth(req, res, next) {
+    const rotasPublicas = [
+        "/login",
+        "/login.html"
+    ];
+
+    if (
+        rotasPublicas.includes(req.path) ||
+        req.path.startsWith("/login.") ||
+        req.path.startsWith("/css") ||
+        req.path.startsWith("/js") ||
+        req.path.match(/\.(css|js|png|jpg|jpeg|svg|ico)$/)
+    ) {
+        return next();
+    }
+
+    if (!req.session.usuario) {
+        return res.redirect("/login.html");
+    }
+
+    next();
+}
+
+app.use(auth);
+
+/* ======================
+   ROTAS PROTEGIDAS
+====================== */
 
 app.get("/empresa/:cnpj", async (req, res) => {
     try{
@@ -40,6 +109,15 @@ app.get("/empresa/:cnpj", async (req, res) => {
     }
 });
 
+/* ======================
+   FRONTEND
+====================== */
+app.use(express.static("public"));
+
+
+/* ======================
+   START SERVER
+====================== */
 app.listen(PORT, () => {
     console.log(
         isDev
