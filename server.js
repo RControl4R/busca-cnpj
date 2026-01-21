@@ -1,6 +1,6 @@
 import express from "express";
 import cors from "cors";
-import { buscaEmpresa } from "./backend/services/buscaEmpresa";
+import { buscaEmpresa } from "./backend/services/buscaEmpresa.js";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
