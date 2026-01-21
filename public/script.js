@@ -73,25 +73,47 @@ function validarCnpj(cnpj){
 async function buscaEmpresa(){
     const cnpjInput = document.getElementById("cnpj");
     const container = document.getElementById("resultado");
+    const status = document.getElementById("status");
 
     const botao = document.getElementById("btnBuscar");
     const loader = document.getElementById("loader");
 
+    status.textContent = "";
+    status.className = "status";
+
+    if (!cnpjInput.value.trim) {
+        status.textContent = "Informe um CNPJ.";
+        status.classList.add("error");
+        return;
+    }
+
+    botao.disabled = true;
+    status.textContent = "Buscando dados da empresa...";
+    status.classList.add("loading");
+
     const cnpjLimpo = limparCnpj(cnpjInput.value);
 
     if(!validarCnpj(cnpjLimpo)){
-        alert("Cnpj inválido. Verifique e tente novamente.");
+        status.textContent = "Cnpj inválido. Verifique e tente novamente.";
+        status.className = "status error";
         cnpjInput.focus();
+        botao.disabled = false;
+        loader.style.display = "none"
         return;
     }
 
     container.style.display = "none";
     botao.disabled = true;
-    loader.style.displaay = "block";
+    loader.style.display = "block";
 
     try{
 
         const response = await fetch(`/empresa/${cnpjLimpo}`); // teste em produção
+
+        if (!response.ok) {
+            const erro = await response.json();
+            throw new Error(erro.erro);
+        }
 
         console.log("Status HTTP:", response.status); //log de depuração
 
@@ -112,6 +134,9 @@ async function buscaEmpresa(){
         document.getElementById("cnae_principal").textContent = data.cnaePrincipal;
         document.getElementById("cnae_secundario").textContent = data.cnaeSecundario;
 
+        status.textContent = "Consulta realizada com sucesso.";
+        status.className = "status success";
+    
         container.style.display = "block";
 
     }catch(error) {
@@ -128,4 +153,8 @@ async function buscaEmpresa(){
 document.getElementById("logoutBtn").addEventListener("click", async () => {
     await fetch("/logout");
     window.location.href = "/login.html";
+});
+
+document.getElementById("cnpj").addEventListener("input", () => {
+    document.getElementById("status").textContent = "";
 });
