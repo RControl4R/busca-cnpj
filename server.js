@@ -4,6 +4,7 @@ import { buscaEmpresa } from "./backend/services/buscaEmpresa.js";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const isDev = process.env.NODE_ENV !== "production";
 
 app.use(cors());
 app.use(express.static("public"));
@@ -40,5 +41,9 @@ app.get("/empresa/:cnpj", async (req, res) => {
 });
 
 app.listen(PORT, () => {
-    console.log(`Listen in port ${PORT}`);
+    console.log(
+        isDev
+        ? `Servidor LOCAL rodando em http://localhost:${PORT}`
+        : `Servidor PRODUÇÃO rodando na porta ${PORT}`
+    );
 });
