@@ -6,6 +6,7 @@ import { buscaEmpresa } from "./backend/services/buscaEmpresa.js";
 import session from "express-session";
 
 const app = express();
+app.set("trust proxy", 1);
 const PORT = process.env.PORT || 3000;
 const isDev = process.env.NODE_ENV !== "production";
 const usuarios = [
@@ -13,14 +14,17 @@ const usuarios = [
     //{ user: "iury.prates", senha: "Rcontrol@123" }  
 ];
 
-app.use(cors());
+app.use(cors({
+    origin: true,
+    credentials: true
+}));
 app.use(session({
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
     cookie:{
         httpOnly: true,
-        secure: !isDev,
+        secure: !isDev && process.env.FORCE_SECURE === "true",
         sameSite: "lax",
         maxAge: 15 * 1000 //30 * 60 * 1000
     }
