@@ -74,52 +74,59 @@ async function buscaEmpresa(){
     const cnpjInput = document.getElementById("cnpj");
     const container = document.getElementById("resultado");
     const status = document.getElementById("status");
-
     const botao = document.getElementById("btnBuscar");
     const loader = document.getElementById("loader");
 
     status.textContent = "";
     status.className = "status";
+    container.style.display = "none";
 
-    if (!cnpjInput.value.trim) {
+    const cnpjLimpo = limparCnpj(cnpjInput.value);
+
+    if (!cnpjLimpo) {
         status.textContent = "Informe um CNPJ.";
         status.classList.add("error");
         return;
     }
-
-    botao.disabled = true;
-    status.textContent = "Buscando dados da empresa...";
-    status.classList.add("loading");
-
-    const cnpjLimpo = limparCnpj(cnpjInput.value);
 
     if(!validarCnpj(cnpjLimpo)){
         status.textContent = "Cnpj inválido. Verifique e tente novamente.";
         status.className = "status error";
         cnpjInput.focus();
         botao.disabled = false;
-        loader.style.display = "none"
+        if(loader) loader.style.display = "none";
         return;
     }
 
-    container.style.display = "none";
     botao.disabled = true;
     loader.style.display = "block";
+    status.textContent = "Buscando dados da empresa...";
+    status.classList.add("loading");
 
-    try{
-
-        const response = await fetch(`/empresa/${cnpjLimpo}`); // teste em produção
-
+    try {
+        const response = await fetch(`/empresa/${cnpjLimpo}`);
+        const contentType = response.headers.get("content-type");
+    
+        // Se não for JSON, provavelmente a sessão expirou e veio HTML
+        if (!contentType || !contentType.includes("application/json")) {
+            status.textContent = "Sua sessão expirou. Redirecionando para login...";
+            status.className = "status error";
+    
+            setTimeout(() => {
+                window.location.href = "/login.html";
+            }, 2000);
+            return;
+        }
+    
+        // Se a resposta não for ok, tenta pegar a mensagem de erro do JSON
         if (!response.ok) {
             const erro = await response.json();
-            throw new Error(erro.erro);
+            throw new Error(erro.erro || "Erro ao buscar empresa");
         }
-
-        console.log("Status HTTP:", response.status); //log de depuração
-
+    
+        console.log("Status HTTP:", response.status); // log de depuração
         const data = await response.json();
-
-
+    
         document.getElementById("cnpjEmpresa").textContent = formatarCnpj(data.cnpjEmpresa);
         document.getElementById("razaoSocial").textContent = data.razaoSocial;
         document.getElementById("dataAbertura").textContent = formataData(data.dataAbertura);
@@ -133,21 +140,19 @@ async function buscaEmpresa(){
         document.getElementById("municipio").textContent = data.municipio;
         document.getElementById("cnae_principal").textContent = data.cnaePrincipal;
         document.getElementById("cnae_secundario").textContent = data.cnaeSecundario;
-
+    
         status.textContent = "Consulta realizada com sucesso.";
         status.className = "status success";
+        container.style.display = "block";
     
-        container.style.display = "block";
-
-    }catch(error) {
-        console.log("Erro no FrontEnd:\n", error);
-        container.textContent = "Erro ao buscar empresa!";
-        container.style.display = "block";
-        
-    }finally{
-        loader.style.display = "none";
+    } catch (error) {
+        console.error(error);
+        status.textContent = error.message || "Erro ao buscar empresa!";
+        status.className = "status error";
+    } finally {
+        if (loader) loader.style.display = "none";
         botao.disabled = false;
-    }
+    }    
 }
 
 document.getElementById("logoutBtn").addEventListener("click", async () => {
