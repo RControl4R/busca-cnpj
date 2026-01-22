@@ -19,9 +19,33 @@ app.use(session({
     resave: false,
     saveUninitialized: false,
     cookie:{
-        httpOnly: true
+        httpOnly: true,
+        secure: !isDev,
+        sameSite: "lax",
+        maxAge: 15 * 1000 //30 * 60 * 1000
     }
 }));
+
+/* ======================
+   CONTROLE DE INATIVIDADE TOTAL
+====================== */
+app.use((req, res, next) => {
+    if (!req.session) return next();
+
+    const agora = Date.now();
+    const ultimoAcesso = req.session.ultimoAcesso || agora;
+
+    if (agora - ultimoAcesso > 25 * 1000) {
+        req.session.destroy(() => {
+            // IMPORTANTE: não redirecionar aqui
+            return res.status(401).json({ erro: "Sessão expirada" });
+        });
+        return;
+    }
+
+    req.session.ultimoAcesso = agora;
+    next();
+});
 
 /* ======================
    ROTAS PÚBLICAS
@@ -66,6 +90,13 @@ function auth(req, res, next) {
     }
 
     if (!req.session.usuario) {
+
+        if(req.headers.accept?.includes("application/json")){
+            return res.status(401).json({ 
+                erro: "Sessão expirada"
+            });
+        }
+
         return res.redirect("/login.html");
     }
 
