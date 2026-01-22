@@ -8,6 +8,7 @@
 *.csv
 *.txt
 *.env
+*.log
 
 .spec
 
