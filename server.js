@@ -2,6 +2,7 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import { buscaEmpresa } from "./backend/services/buscaEmpresa.js";
+import logger from "./backend/services/logger.js";
 
 import session from "express-session";
 
@@ -31,27 +32,6 @@ app.use(session({
 }));
 
 /* ======================
-   CONTROLE DE INATIVIDADE TOTAL
-====================== */
-app.use((req, res, next) => {
-    if (!req.session) return next();
-
-    const agora = Date.now();
-    const ultimoAcesso = req.session.ultimoAcesso || agora;
-
-    if (agora - ultimoAcesso > 25 * 1000) {
-        req.session.destroy(() => {
-            // IMPORTANTE: não redirecionar aqui
-            return res.status(401).json({ erro: "Sessão expirada" });
-        });
-        return;
-    }
-
-    req.session.ultimoAcesso = agora;
-    next();
-});
-
-/* ======================
    ROTAS PÚBLICAS
 ====================== */
 
@@ -63,10 +43,25 @@ app.post("/login", express.json(), (req, res) => {
     );
 
     if(!valido){
+        logger.warn({
+            message: "LOGIN_INVALIDO",
+            usuario: user,
+            ip: req.ip,
+            rota: req.originalUrl,
+            resultado: "ERRO"
+        });
+
         return res.status(401).json({erro: "Usuário ou senha inválido."});
     };
 
     req.session.usuario = user;
+    logger.info({
+        message: "LOGIN_SUCESSO",
+        usuario: user,
+        ip: req.ip,
+        rota: req.originalUrl,
+        resultado: "SUCESSO"
+    });
     res.json({ sucesso: true});
 });
 
@@ -114,9 +109,19 @@ app.use(auth);
 ====================== */
 
 app.get("/empresa/:cnpj", async (req, res) => {
+    const { cnpj } = req.params;
+
     try{
-        const { cnpj } = req.params;
         const dados = await buscaEmpresa(cnpj);
+
+        logger.info({
+            message: "CONSULTA_CNPJ",
+            usuario: req.session.usuario,
+            ip: req.ip,
+            rota: req.originalUrl,
+            cnpj,
+            resultado: "SUCESSO"
+        });
         
         const empresa = {
             cnpjEmpresa: dados.cnpj,
@@ -137,9 +142,18 @@ app.get("/empresa/:cnpj", async (req, res) => {
         res.json(empresa);
         
     }catch(error){
-        res.status(400).json({
-            erro: "Erro ao buscar CNPJ",
-            detalhe: error.message
+        logger.error({
+            message: "CONSULTA_CNPJ_EXCEPTION",
+            usuario: req.session.usuario,
+            ip: req.ip,
+            rota: req.originalUrl,
+            cnpj,
+            resultado: "ERRO",
+            erro: error.message
+        });
+
+        res.status(500).json({
+            erro: "Erro interno ao buscar CNPJ"
         });
     }
 });
@@ -155,6 +169,12 @@ app.use(express.static("public"));
 ====================== */
 app.listen(PORT, () => {
     console.log(
+        isDev
+        ? `Servidor LOCAL rodando em http://localhost:${PORT}`
+        : `Servidor PRODUÇÃO rodando na porta ${PORT}`
+    );
+
+    logger.info(
         isDev
         ? `Servidor LOCAL rodando em http://localhost:${PORT}`
         : `Servidor PRODUÇÃO rodando na porta ${PORT}`
