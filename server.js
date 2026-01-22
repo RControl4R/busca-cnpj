@@ -26,7 +26,7 @@ app.use(session({
         httpOnly: true,
         secure: !isDev && process.env.FORCE_SECURE === "true",
         sameSite: "lax",
-        maxAge: 15 * 1000 //30 * 60 * 1000
+        maxAge: 30 * 60 * 1000
     }
 }));
 
