@@ -1,20 +1,20 @@
-import pkg from "pg";
+import pg from "pg";
+import "dotenv/config";
 
-const { Pool } = pkg;
+const { Pool } = pg;
 
 const pool = new Pool({
-    connectionString: process.env.DATABASE_URL,
-    ssl: process.env.NODE_ENV === "production"
-    ? { rejectUnauthorized: false }
-    : false
+  connectionString: process.env.DATABASE_URL,
+  ssl: false
 });
 
-pool.query("SELECT 1")
-    .then(() => {
-        console.log("PostgreSQL conectado com sucesso.");
-    })
-    .catch(err => {
-        console.error("Erro ao conectar no PostgreSQL:", err.message);
-    });
+pool.on("connect", () => {
+  console.log("🟢 Conectado ao PostgreSQL LOCAL");
+});
+
+pool.on("error", (err) => {
+  console.error("🔴 Erro PostgreSQL", err);
+  process.exit(1);
+});
 
 export default pool;

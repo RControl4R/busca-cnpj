@@ -1,3 +1,4 @@
+import { autenticarUsuario } from "./backend/services/authService.js";
 import "./backend/database/db.js";
 import "dotenv/config";
 import express from "express";
@@ -11,10 +12,7 @@ const app = express();
 app.set("trust proxy", 1);
 const PORT = process.env.PORT || 3000;
 const isDev = process.env.NODE_ENV !== "production";
-const usuarios = [
-    { user: "admin", senha: "12345" }
-    //{ user: "iury.prates", senha: "Rcontrol@123" }  
-];
+
 
 app.use(cors({
     origin: true,
@@ -36,34 +34,44 @@ app.use(session({
    ROTAS PÚBLICAS
 ====================== */
 
-app.post("/login", express.json(), (req, res) => {
+app.post("/login", express.json(), async (req, res) => {
     const { user, senha } = req.body;
 
-    const valido = usuarios.find(
-        u => u.user === user && u.senha === senha
-    );
+    try {
+        const usuario = await autenticarUsuario(user, senha);
 
-    if(!valido){
-        logger.warn({
-            message: "LOGIN_INVALIDO",
-            usuario: user,
+        if (!usuario) {
+            logger.warn({
+                message: "LOGIN_INVALIDO",
+                usuario: user,
+                ip: req.ip,
+                rota: req.originalUrl,
+                resultado: "ERRO"
+            });
+
+            return res.status(401).json({ erro: "Usuário ou senha inválido." });
+        }
+
+        req.session.usuario = usuario.username;
+        req.session.userId = usuario.id;
+
+        logger.info({
+            message: "LOGIN_SUCESSO",
+            usuario: usuario.username,
             ip: req.ip,
             rota: req.originalUrl,
-            resultado: "ERRO"
+            resultado: "SUCESSO"
         });
 
-        return res.status(401).json({erro: "Usuário ou senha inválido."});
-    };
+        res.json({ sucesso: true });
+    } catch (err) {
+        logger.error({
+            message: "LOGIN_EXCEPTION",
+            erro: err.message
+        });
 
-    req.session.usuario = user;
-    logger.info({
-        message: "LOGIN_SUCESSO",
-        usuario: user,
-        ip: req.ip,
-        rota: req.originalUrl,
-        resultado: "SUCESSO"
-    });
-    res.json({ sucesso: true});
+        res.status(500).json({ erro: "Erro interno no login" });
+    }
 });
 
 app.get("/logout", (req, res) => {
