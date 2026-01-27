@@ -5,11 +5,13 @@ const { Pool } = pg;
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: false
+  ssl: { rejectUnauthorized: false } //ssl: false
 });
 
 pool.on("connect", () => {
-  console.log("🟢 Conectado ao PostgreSQL LOCAL");
+  console.log(
+    `🟢 PostgreSQL conectado (${process.env.NODE_ENV || "dev"})`
+  );
 });
 
 pool.on("error", (err) => {
