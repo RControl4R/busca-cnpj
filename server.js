@@ -176,16 +176,22 @@ app.use(express.static("public"));
 /* ======================
    START SERVER
 ====================== */
-app.listen(PORT, () => {
-    console.log(
-        isDev
-        ? `Servidor LOCAL rodando em http://localhost:${PORT}`
-        : `Servidor PRODUÇÃO rodando na porta ${PORT}`
-    );
 
-    logger.info(
-        isDev
-        ? `Servidor LOCAL rodando em http://localhost:${PORT}`
-        : `Servidor PRODUÇÃO rodando na porta ${PORT}`
-    );
-});
+if(process.env.VERCEL !== "1"){
+    app.listen(PORT, () => {
+        console.log(
+            isDev
+            ? `Servidor LOCAL rodando em http://localhost:${PORT}`
+            : `Servidor PRODUÇÃO rodando na porta ${PORT}`
+        );
+    
+        logger.info(
+            isDev
+            ? `Servidor LOCAL rodando em http://localhost:${PORT}`
+            : `Servidor PRODUÇÃO rodando na porta ${PORT}`
+        );
+    });
+}
+
+
+export default app;
